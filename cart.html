@@ -1,0 +1,116 @@
+ <!DOCTYPE html>
+<html>
+<head>
+    <title>Cart</title>
+    <style>
+        .cart-box{
+            width:280px;
+            border:1px solid #ddd;
+            padding:10px;
+            margin:10px;
+            display:inline-block;
+            vertical-align: top;
+        }
+        .cart-box img{
+            width:100%;
+        }
+        .btn{
+            padding:5px 10px;
+            margin:3px;
+            cursor:pointer;
+        }
+        .total-box{
+            margin:20px;
+            font-size:22px;
+            font-weight:bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>Your Cart</h2>
+<div id="cartItems"></div>
+
+<div class="total-box">
+    Total: $ <span id="totalPrice">0.00</span>
+</div>
+
+<script>
+function loadCart(){
+    // Get cart from localStorage or empty array
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    let box = document.getElementById("cartItems");
+    let total = 0;
+
+    // If cart is empty
+    if(cart.length === 0){
+        box.innerHTML = "<h3>No Items in Cart</h3>";
+        document.getElementById("totalPrice").innerText = "0.00";
+        return;
+    }
+
+    // Clear previous content
+    box.innerHTML = "";
+
+    // Loop through cart items
+    cart.forEach((item, index) => {
+        total += parseFloat(item.price) * item.qty;
+
+        box.innerHTML += `
+        <div class="cart-box">
+            <img src="${item.img}" alt="${item.name}">
+            <h3>${item.name}</h3>
+            <p>Price: $${parseFloat(item.price).toFixed(2)}</p>
+
+            <p>
+                Quantity:
+                <button class="btn" onclick="decrease(${index})">-</button>
+                ${item.qty}
+                <button class="btn" onclick="increase(${index})">+</button>
+            </p>
+
+            <button class="btn" onclick="removeItem(${index})">Remove</button>
+        </div>
+        `;
+    });
+
+    // Update total
+    document.getElementById("totalPrice").innerText = total.toFixed(2);
+}
+
+// Increase quantity
+function increase(i){
+    let cart = JSON.parse(localStorage.getItem("cart"));
+    cart[i].qty++;
+    localStorage.setItem("cart", JSON.stringify(cart));
+    loadCart();
+}
+
+// Decrease quantity
+function decrease(i){
+    let cart = JSON.parse(localStorage.getItem("cart"));
+    if(cart[i].qty > 1){
+        cart[i].qty--;
+    } else {
+        // Optionally, remove item if qty becomes 0
+        cart.splice(i, 1);
+    }
+    localStorage.setItem("cart", JSON.stringify(cart));
+    loadCart();
+}
+
+// Remove item from cart
+function removeItem(i){
+    let cart = JSON.parse(localStorage.getItem("cart"));
+    cart.splice(i,1);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    loadCart();
+}
+
+// Load cart on page load
+loadCart();
+</script>
+
+</body>
+</html>
